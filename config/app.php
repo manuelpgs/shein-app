@@ -121,15 +121,5 @@ return [
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
-    ],
-    // 'providers' => [
-    //     // Otros proveedores...
-    //     PragmaRX\Google2FA\Laravel\ServiceProvider::class,
-    // ],
-    // 'aliases' => [
-    //     // ... otras aliases
-    //     'Google2FA' => PragmaRX\Google2FA\Laravel\Facade::class,
-    //     // ...
-    // ],    
-
+    ], 
 ];

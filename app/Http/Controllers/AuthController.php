@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PragmaRX\Google2FA\Laravel\Facade as Google2FA;
+use Google2FA;
 
 
 class AuthController extends Controller
@@ -76,7 +76,7 @@ class AuthController extends Controller
     public function generate2faSecret(Request $request)
     {
         $user = $request->user();
-        // $secret = Google2FA::generateSecretKey();
+        $secret = Google2FA::generateSecretKey();
 
         $user->google2fa_secret = $secret;
         $user->save();
