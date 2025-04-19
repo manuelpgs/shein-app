@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use PragmaRX\Google2FA\Laravel\Facade as Google2FA;
 
 class Ensure2FA
 {
@@ -12,8 +11,12 @@ class Ensure2FA
     {
         $user = $request->user();
 
-        if ($user && $user->google2fa_secret && !$request->session()->get('2fa_passed')) {
-            return response()->json(['message' => '2FA required'], 403);
+        if ($user && $user->two_fa_enabled) {
+            $tokenName = $request->bearerToken() ? $request->user()->currentAccessToken()->name : null;
+        
+            if ($tokenName !== 'auth_token_2fa') {
+                return response()->json(['message' => '2FA verification required'], 403);
+            }
         }
 
         return $next($request);

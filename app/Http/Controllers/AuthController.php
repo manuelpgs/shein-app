@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Google2FA;
+use App\Models\User;
+use PragmaRX\Google2FALaravel\Facade as Google2FA;
 
 
 class AuthController extends Controller
@@ -62,12 +63,16 @@ class AuthController extends Controller
             return response()->json(['message' => '2FA is not enabled for this user'], 400);
         }
     
-        if (Google2FA::verifyKey($user->google2fa_secret, $request->code)) {
+        $google2fa = app('pragmarx.google2fa');
+
+        if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
             // El código 2FA es válido, generamos el token de acceso
-            $token = $user->createToken('auth_token')->plainTextToken;
-            // Limpiamos la sesión de 2FA si la usamos
-            $request->session()->forget('2fa_passed_' . $user->id);
-            return response()->json(['token' => $token]);
+            // $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('auth_token_2fa')->plainTextToken;
+            return response()->json([
+                'token' => $token,
+                'user' => $user->only(['id', 'name', 'email'])
+            ]);
         } else {
             return response()->json(['message' => 'Invalid 2FA code'], 401);
         }
@@ -76,29 +81,45 @@ class AuthController extends Controller
     public function generate2faSecret(Request $request)
     {
         $user = $request->user();
-        $secret = Google2FA::generateSecretKey();
-
-        $user->google2fa_secret = $secret;
-        $user->save();
-
-        return response()->json(['secret' => $secret]);
+        $google2fa = app('pragmarx.google2fa');
+    
+        $secret = $google2fa->generateSecretKey();
+    
+        $otpUrl = $google2fa->getQRCodeUrl(
+            config('app.name'), // Issuer (e.g. MyApp)
+            $user->email,       // Label (user's email or name)
+            $secret             // The 2FA secret
+        );
+    
+        return response()->json([
+            'secret' => $secret,
+            'otpauth_url' => $otpUrl,
+        ]);
     }
 
     public function enable2fa(Request $request)
     {
+        $google2fa = app('pragmarx.google2fa');
         $user = $request->user();
+    
         $secret = $request->input('secret');
         $code = $request->input('code');
-
-        if (Google2FA::verifyKey($secret, $code)) {
+    
+        if (!$secret || !$code) {
+            return response()->json(['message' => 'Missing 2FA secret or code'], 422);
+        }
+    
+        $valid = $google2fa->verifyKey($secret, $code);
+    
+        if ($valid) {
             $user->google2fa_secret = $secret;
             $user->two_fa_enabled = true;
             $user->save();
-
-            return response()->json(['message' => '2FA enabled']);
+    
+            return response()->json(['message' => '2FA enabled successfully']);
         }
-
-        return response()->json(['message' => 'Invalid verification code'], 400);
+    
+        return response()->json(['message' => 'Invalid 2FA code'], 403);
     }
 
     public function disable2fa(Request $request)
@@ -114,22 +135,25 @@ class AuthController extends Controller
 
     public function verify2fa(Request $request)
     {
-        $user = $request->user();
-        $code = $request->input('code');
-
-        if (Google2FA::verifyKey($user->google2fa_secret, $code)) {
-            $request->session()->put('2fa_passed', true);
-
-            return response()->json(['message' => '2FA verified']);
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'code' => 'required|string',
+        ]);
+    
+        $user = User::findOrFail($request->user_id);
+    
+        $google2fa = new Google2FA();
+    
+        if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
+            // Create the token now that 2FA is passed
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'message' => '2FA verified successfully',
+                'token' => $token
+            ]);
         }
-
-        return response()->json(['message' => 'Invalid verification code'], 400);
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Logged out']);
+    
+        return response()->json(['message' => 'Invalid 2FA code'], 401);
     }
 }

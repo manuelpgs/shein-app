@@ -8,7 +8,7 @@
   
         <div v-if="secret">
           <p>Scan this QR code with your authenticator app:</p>
-          <img :src="qrCodeUrl" alt="QR Code" />
+          <img :src="qrCodeImage" v-if="qrCodeImage" alt="QR Code" />
           <p>Or enter this secret key manually: {{ secret }}</p>
   
           <label>Verification Code:</label>
@@ -44,6 +44,7 @@
         },
         secret: null,
         qrCodeUrl: null,
+        qrCodeImage : null,
         verificationCode: '',
         showVerificationForm: false,
       };
@@ -64,7 +65,20 @@
         try {
           const response = await axios.post('/api/2fa/generate');
           this.secret = response.data.secret;
-          this.qrCodeUrl = await toDataURL(this.secret);
+          this.qrCodeUrl = response.data.otpauth_url;
+
+          // this.qrCodeUrl = await toDataURL(this.secret);
+          // } catch (error) {
+          //   console.error(error);
+          // }
+
+          toDataURL(this.qrCodeUrl)
+          .then(url => {
+            this.qrCodeImage = url
+          })
+          .catch(err => {
+            console.error(err)
+          })
         } catch (error) {
           console.error(error);
         }

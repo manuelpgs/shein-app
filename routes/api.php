@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\Ensure2FA;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -13,7 +14,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login/2fa/verify', [AuthController::class, 'verify2faLogin']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware('auth:sanctum')->post('/2fa/verify', [AuthController::class, 'verify2fa']);
+
+
+Route::middleware(['auth:sanctum', Ensure2FA::class])->group(function () {    
     Route::post('/2fa/generate', [AuthController::class, 'generate2faSecret']);
     Route::post('/2fa/enable', [AuthController::class, 'enable2fa']);
     Route::post('/2fa/disable', [AuthController::class, 'disable2fa']);
@@ -22,7 +26,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('orders', OrderController::class);
-    Route::apiResource('clients', ClientController::class);    
+    Route::apiResource('clients', ClientController::class);
+
+    Route::post('/orders/{order}/payment', [OrderController::class, 'processPayment']);
+    Route::post('/orders/{order}/tracking', [OrderController::class, 'addTrackingNumber']);
+    Route::post('/orders/{order}/pickup', [OrderController::class, 'markForPickup']);    
 });
 
 // Route::middleware(['auth:sanctum', '2fa'])->group(function () {
@@ -31,6 +39,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //     // ... otras rutas protegidas
 // });
 
-Route::post('/orders/{order}/payment', [OrderController::class, 'processPayment']);
-Route::post('/orders/{order}/tracking', [OrderController::class, 'addTrackingNumber']);
-Route::post('/orders/{order}/pickup', [OrderController::class, 'markForPickup']);

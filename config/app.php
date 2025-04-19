@@ -63,9 +63,12 @@ return [
     | will be used by the PHP date and date-time functions. The timezone
     | is set to "UTC" by default as it is suitable for most use cases.
     |
+    Gemini 2.0 flash:
+    Q: give me the value for timezone settings for SDQ
+    A: 'timezone' => env('APP_TIMEZONE', 'America/Santo_Domingo'),
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'America/Santo_Domingo'), 
 
     /*
     |--------------------------------------------------------------------------
