@@ -115,8 +115,17 @@ class AuthController extends Controller
             $user->google2fa_secret = $secret;
             $user->two_fa_enabled = true;
             $user->save();
+
+            // 🔐 Revoke the old token
+            $request->user()->currentAccessToken()->delete();
+
+            // ✅ Create new token that passes Ensure2FA check
+            $newToken = $user->createToken('auth_token_2fa')->plainTextToken;            
     
-            return response()->json(['message' => '2FA enabled successfully']);
+            return response()->json([
+                'message' => '2FA enabled successfully.',
+                'token' => $newToken
+            ]);
         }
     
         return response()->json(['message' => 'Invalid 2FA code'], 403);

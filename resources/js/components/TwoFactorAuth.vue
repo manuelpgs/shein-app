@@ -1,27 +1,27 @@
 <template>
     <div>
       <h1>Two-Factor Authentication</h1>
-  
+
       <div v-if="!user.two_fa_enabled">
         <p>Enable 2FA for enhanced security.</p>
         <button @click="generateSecret">Generate Secret</button>
-  
+
         <div v-if="secret">
           <p>Scan this QR code with your authenticator app:</p>
           <img :src="qrCodeImage" v-if="qrCodeImage" alt="QR Code" />
           <p>Or enter this secret key manually: {{ secret }}</p>
-  
+
           <label>Verification Code:</label>
           <input type="text" v-model="verificationCode" />
           <button @click="enable2FA">Enable</button>
         </div>
       </div>
-  
+
       <div v-else>
         <p>2FA is currently enabled.</p>
         <button @click="disable2FA">Disable 2FA</button>
       </div>
-  
+
       <div v-if="showVerificationForm">
         <label>Verification Code:</label>
         <input type="text" v-model="verificationCode" />
@@ -29,13 +29,13 @@
       </div>
     </div>
   </template>
-  
+
   <script>
 
 
   import axios from 'axios';
   import { toDataURL } from 'qrcode';
-  
+
   export default {
     data() {
       return {
@@ -85,10 +85,19 @@
       },
       async enable2FA() {
         try {
-          await axios.post('/api/2fa/enable', { secret: this.secret, code: this.verificationCode });
+          const response = await axios.post('/api/2fa/enable', { secret: this.secret, code: this.verificationCode });        
+          const newToken = response.data.token;
+
+          // 🔁 Replace old token
+          localStorage.setItem('auth_token', newToken);
+
+          // ✅ Set default Authorization header
+          axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+
           this.user.two_fa_enabled = true;
+
         } catch (error) {
-          console.error(error);
+          console.error('Error enabling 2FA:', error);
         }
       },
       async disable2FA() {
