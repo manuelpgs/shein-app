@@ -9,3 +9,18 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+
+.container {
+    border: 1px solid green;
+    padding: 1em;
+  }
+  
+  .title {
+    font-weight: bold;
+    color: green;
+  }
+  
+  .description {
+    font-style: italic;
+  }

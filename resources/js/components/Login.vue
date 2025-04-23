@@ -1,25 +1,34 @@
 <template>
-    <div>
-      <h1>Login</h1>
-      <form @submit.prevent="submitLogin">
-        <div v-if="!twoFaRequired">
-          <label for="email">Email:</label>
-          <input type="email" id="email" v-model="email" required>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h1>{{ twoFaRequired ? 'Verify 2FA' : 'Login' }}</h1>
+          </div>
+          <div class="card-body">
+            <form @submit.prevent="submitLogin">
+              <div v-if="!twoFaRequired" class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" id="email" v-model="email" class="form-control" required>
+              </div>
+              <div v-if="!twoFaRequired" class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" id="password" v-model="password" class="form-control" required>
+              </div>
+              <div v-if="twoFaRequired" class="mb-3">
+                <label for="code" class="form-label">Verification Code:</label>
+                <input type="text" id="code" v-model="twoFaCode" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">{{ twoFaRequired ? 'Verify Code' : 'Login' }}</button>
+              <p v-if="error" class="mt-3 text-danger">{{ error }}</p>
+            </form>
+          </div>
         </div>
-        <div v-if="!twoFaRequired">
-          <label for="password">Password:</label>
-          <input type="password" id="password" v-model="password" required>
-        </div>
-        <div v-if="twoFaRequired">
-          <h2>Verify 2FA</h2>
-          <label for="code">Verification Code:</label>
-          <input type="text" id="code" v-model="twoFaCode" required>
-        </div>
-        <button type="submit">{{ twoFaRequired ? 'Verify Code' : 'Login' }}</button>
-        <p v-if="error" style="color: red;">{{ error }}</p>
-      </form>
+      </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
   import axios from 'axios';

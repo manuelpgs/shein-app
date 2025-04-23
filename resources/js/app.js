@@ -14,6 +14,8 @@ import OrderForm from './components/OrderForm.vue';
 import ClientForm from './components/ClientForm.vue';
 import TwoFactorAuth from './components/TwoFactorAuth.vue';
 import axios from 'axios';
+import '../css/app.css'; // Importa tus estilos CSS globales
+import 'bootstrap/dist/css/bootstrap.css'; // Importa Bootstrap CSS
 
 /*
 1. Step 1: Fetch the Form Page & Save Cookies

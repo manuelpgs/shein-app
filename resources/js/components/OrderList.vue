@@ -1,36 +1,46 @@
 <template>
-    <div>
-        <h1>Orders</h1>
-        <router-link to="/orders/create">Create Order</router-link>
-        <table>
-        <thead>
+    <div class="container mt-4">
+      <h1>Orders</h1>
+      <router-link to="/orders/create" class="btn btn-primary mb-3">Create Order</router-link>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          <thead>
             <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Shein Order #</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Shein Order #</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
             <tr v-for="order in orders" :key="order.id">
-            <td>{{ order.id }}</td>
-            <td>{{ order.client.name }}</td>
-            <td>{{ order.shein_order_number }}</td>
-            <td>{{ order.amount }}</td>
-            <td>{{ order.status }}</td>
-            <td>
-                <router-link :to="`/orders/${order.id}/edit`">Edit</router-link>
-                <button @click="processPayment(order.id)" v-if="order.status === 'pending'">Process Payment</button>
-                <button @click="addTrackingNumber(order.id)" v-if="order.status === 'paid'">Add Tracking</button>
-                <button @click="markForPickup(order.id)" v-if="order.status === 'shipped'">Ready for pickup</button>
-            </td>
+              <td>{{ order.id }}</td>
+              <td>{{ order.client.name }}</td>
+              <td>{{ order.shein_order_number }}</td>
+              <td>{{ order.amount }}</td>
+              <td>
+                <span :class="{'badge bg-warning': order.status === 'pending',
+                               'badge bg-success': order.status === 'paid',
+                               'badge bg-info': order.status === 'shipped',
+                               'badge bg-secondary': order.status === 'delivered',
+                               'badge bg-danger': order.status === 'canceled'}">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>
+                <router-link :to="`/orders/${order.id}/edit`" class="btn btn-sm btn-outline-secondary me-2">Edit</router-link>
+                <button @click="processPayment(order.id)" v-if="order.status === 'pending'" class="btn btn-sm btn-success me-2">Process Payment</button>
+                <button @click="addTrackingNumber(order.id)" v-if="order.status === 'paid'" class="btn btn-sm btn-info me-2">Add Tracking</button>
+                <button @click="markForPickup(order.id)" v-if="order.status === 'shipped'" class="btn btn-sm btn-primary">Ready for pickup</button>
+              </td>
             </tr>
-        </tbody>
+          </tbody>
         </table>
+      </div>
     </div>
-    </template>
+  </template>
     
     <script>
     import axios from 'axios';

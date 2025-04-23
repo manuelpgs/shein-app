@@ -1,8 +1,9 @@
 <template>
-    <div>
-      <h1>Clients</h1>
-      <router-link to="/clients/create">Create Client</router-link>
-      <table>
+  <div class="container mt-4">
+    <h1>Clients</h1>
+    <router-link to="/clients/create" class="btn btn-primary mb-3">Create Client</router-link>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
         <thead>
           <tr>
             <th>ID</th>
@@ -19,13 +20,14 @@
             <td>{{ client.email }}</td>
             <td>{{ client.phone }}</td>
             <td>
-              <router-link :to="`/clients/${client.id}/edit`">Edit</router-link>
+              <router-link :to="`/clients/${client.id}/edit`" class="btn btn-sm btn-outline-secondary">Edit</router-link>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
   import axios from 'axios';

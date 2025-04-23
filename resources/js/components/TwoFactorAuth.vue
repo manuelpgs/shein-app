@@ -1,34 +1,45 @@
 <template>
-    <div>
-      <h1>Two-Factor Authentication</h1>
+  <div class="container mt-4">
+    <h1>Two-Factor Authentication</h1>
 
-      <div v-if="!user.two_fa_enabled">
-        <p>Enable 2FA for enhanced security.</p>
-        <button @click="generateSecret">Generate Secret</button>
+    <div v-if="!user.two_fa_enabled" class="card mb-3">
+      <div class="card-body">
+        <p class="card-text">Enable 2FA for enhanced security.</p>
+        <button @click="generateSecret" class="btn btn-primary">Generate Secret</button>
 
-        <div v-if="secret">
-          <p>Scan this QR code with your authenticator app:</p>
-          <img :src="qrCodeImage" v-if="qrCodeImage" alt="QR Code" />
-          <p>Or enter this secret key manually: {{ secret }}</p>
+        <div v-if="secret" class="mt-3">
+          <p class="card-text">Scan this QR code with your authenticator app:</p>
+          <img :src="qrCodeImage" v-if="qrCodeImage" alt="QR Code" class="img-fluid mb-2" />
+          <p class="card-text">Or enter this secret key manually: <strong class="text-monospace">{{ secret }}</strong></p>
 
-          <label>Verification Code:</label>
-          <input type="text" v-model="verificationCode" />
-          <button @click="enable2FA">Enable</button>
+          <div class="mb-3">
+            <label for="verificationCode" class="form-label">Verification Code:</label>
+            <input type="text" id="verificationCode" v-model="verificationCode" class="form-control">
+          </div>
+          <button @click="enable2FA" class="btn btn-success">Enable</button>
         </div>
       </div>
+    </div>
 
-      <div v-else>
-        <p>2FA is currently enabled.</p>
-        <button @click="disable2FA">Disable 2FA</button>
-      </div>
-
-      <div v-if="showVerificationForm">
-        <label>Verification Code:</label>
-        <input type="text" v-model="verificationCode" />
-        <button @click="verify2FA">Verify</button>
+    <div v-else class="card mb-3">
+      <div class="card-body">
+        <p class="card-text">2FA is currently enabled.</p>
+        <button @click="disable2FA" class="btn btn-danger">Disable 2FA</button>
       </div>
     </div>
-  </template>
+
+    <div v-if="showVerificationForm" class="card">
+      <div class="card-body">
+        <h5 class="card-title">Verify 2FA</h5>
+        <div class="mb-3">
+          <label for="verificationCode" class="form-label">Verification Code:</label>
+          <input type="text" id="verificationCode" v-model="verificationCode" class="form-control">
+        </div>
+        <button @click="verify2FA" class="btn btn-primary">Verify</button>
+      </div>
+    </div>
+  </div>
+</template>
 
   <script>
 
