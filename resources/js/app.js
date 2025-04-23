@@ -7,6 +7,7 @@
 import './bootstrap';
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import App from './components/App.vue'; // Ajusta la ruta si tu componente App.vue está en otra carpeta
 import Login from './components/Login.vue';
 import OrderList from './components/OrderList.vue';
 import ClientList from './components/ClientList.vue';
@@ -73,7 +74,7 @@ const router = createRouter({
 });
 
 
-const app = createApp({});
+const app = createApp(App);
 app.use(router);
 
 import ExampleComponent from './components/ExampleComponent.vue';
